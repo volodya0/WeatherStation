@@ -1,39 +1,48 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include "WifiConnector.h"
+#include <HardwareSerial.h>
+#include <LiquidCrystal_I2C.h>
+#include "WeatherDataPool.h"
+
+using namespace std;
 
 String testUrl = "https://catfact.ninja/fact";
+WeatherDataPool dataPool;
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void setup()
 {
-    Serial.begin(115200);
+    lcd.init();
+    lcd.backlight();
+
+    Serial.begin(9600);
     delay(10);
 
-    WifiConnector::Connect();
+    dataPool.AddRecord("first record");
 }
+
+int i = 0;
 
 void loop()
 {
-    WifiConnector::EnsureConnection();
 
-    HTTPClient http;
-    http.begin(testUrl.c_str());
+    i++;
 
-    int httpResponseCode = http.GET();
-    Serial.print("http.GET()");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(String(i));
+    lcd.setCursor(0, 4);
+    lcd.print(Serial.readString());
     delay(2000);
-
-    if (httpResponseCode > 0)
-    {
-        Serial.print("HTTP Response code: ");
-        Serial.println(httpResponseCode);
-        String payload = http.getString();
-        Serial.println(payload);
-    }
-    else
-    {
-        Serial.print("Error code: ");
-        Serial.println(httpResponseCode);
-    }
-    http.end();
 }
+
+// void display(std::string s1, std::string s2)
+// {
+//     lcd.clear();
+//     lcd.setCursor(0, 0);
+//     lcd.print(s1.c_str());
+//     lcd.setCursor(0, 1);
+//     lcd.print(s2.c_str());
+//     delay(2000);
+// }
