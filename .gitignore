@@ -1,2 +1,5 @@
 config.cpp
 .DS_Store
+src/libraries/Adafruit_Unified_Sensor
+src/libraries/ArduinoRTClibrary-master
+src/libraries/DHT_sensor_library

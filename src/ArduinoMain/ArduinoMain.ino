@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "WeatherDataRecord.h"
 #include "Temperature.h"
 #include "Time.h"
 
@@ -19,9 +20,21 @@ void setup()
 int i = 0;
 void loop()
 {
+
+    long a = 42342342323;
     Serial.println("hello from 9600 from arduino" + String(i++));
     Serial.println("Time: " + time.GetLogString());
     Serial.println("Temperature:  " + temperature.GetLogString());
+
+    WeatherDataRecord record(temperature.GetTemp(), temperature.GetHumidity(), 43234233);
+    String recordJ = record.toJSON();
+
+    Serial.println("JSON :  " + recordJ);
+
+    WeatherDataRecord parsedRecord(recordJ);
+    Serial.println("from JSON :  " + String(parsedRecord.Temperature));
+    Serial.println("from JSON :  " + String(parsedRecord.Humidity));
+    Serial.println("from JSON :  " + String(parsedRecord.Timestamp));
 
     delay(1500);
 }
