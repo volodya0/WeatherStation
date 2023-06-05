@@ -1,155 +1,94 @@
-#include <WiFi.h>
-#include <WebServer.h>
+#include "Config.h"
 #include <LiquidCrystal_I2C.h>
 #include "WifiConnector.h"
-
-WebServer server(80);
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-
-uint8_t LED1pin = 4;
-bool LED1status = LOW;
-
-uint8_t LED2pin = 5;
-bool LED2status = LOW;
+#include "SerialMessageTransfer.h"
+#include "WeatherDataRecord.h"
+#include "WeatherDataPool.h"
 
 void setup()
 {
-    Serial.begin(115200);
-    delay(10);
-
-    lcd.init();
-    lcd.backlight();
-
-    WifiConnector::Connect();
-
-    delay(100);
-    pinMode(LED1pin, OUTPUT);
-    pinMode(LED2pin, OUTPUT);
-
-    Serial.println("");
-    Serial.println("WiFi connected..!");
-    Serial.print("Got IP: ");
-    Serial.println(WiFi.localIP());
-
-    server.on("/", handle_OnConnect);
-    server.on("/led1on", handle_led1on);
-    server.on("/led1off", handle_led1off);
-    server.on("/led2on", handle_led2on);
-    server.on("/led2off", handle_led2off);
-    server.onNotFound(handle_NotFound);
-
-    server.begin();
-    Serial.println("HTTP server started");
+    Serial.begin(SERIAL_COMMUNICATION_PORT);
 }
 
+int i = 1;
 void loop()
 {
-    lcd.setCursor(0, 0);
-    lcd.print("LED1: " + String(LED1status));
-    lcd.setCursor(0, 1);
-    lcd.print("LED2: " + String(LED2status));
-    server.handleClient();
+    Serial.println("************* Iteration " + String(i++) + "***********************");
 
-    delay(1000);
+    Serial.println("RecordsCount " + String(WeatherDataPool::GetRecordsCount()));
 
-    if (LED1status)
+    SerialMessageTransfer::CheckNewMessages(Serial.readString());
+
+    if (SerialMessageTransfer::GetNewMessagesCount() > 0)
     {
-        digitalWrite(LED1pin, HIGH);
-    }
-    else
-    {
-        digitalWrite(LED1pin, LOW);
+        Serial.println("MessagesCount: " + String(SerialMessageTransfer::GetNewMessagesCount()));
+        SerialMessageTransfer::PrintMessagesStack();
+        String lastMessage = SerialMessageTransfer::GetLastMessage(true);
+        Serial.println("Last message: " + lastMessage);
+
+        WeatherDataRecord receivedRecord;
+        if (receivedRecord.fromJSON(lastMessage))
+        {
+            Serial.println("Valid record: " + receivedRecord.toJSON());
+
+            WeatherDataPool::AddRecord(receivedRecord);
+            WeatherDataPool::PrintAllRecords();
+
+            Serial.println("Last record timestamp parsed: " + TimestampToDateString(receivedRecord.Timestamp) + " " + TimestampToTimeString(receivedRecord.Timestamp));
+        }
+        else
+        {
+            Serial.println("Invalid record: " + receivedRecord.toJSON());
+        }
     }
 
-    if (LED2status)
-    {
-        digitalWrite(LED2pin, HIGH);
-    }
-    else
-    {
-        digitalWrite(LED2pin, LOW);
-    }
+    delay(5000);
 }
 
-void handle_OnConnect()
+String TimestampToDateString(unsigned long timestamp)
 {
-    LED1status = LOW;
-    LED2status = LOW;
-    Serial.println("GPIO4 Status: OFF | GPIO5 Status: OFF");
-    server.send(200, "text/html", SendHTML(LED1status, LED2status));
-}
+    unsigned long days = timestamp / 86400; // 86400 seconds in a day
 
-void handle_led1on()
-{
-    LED1status = HIGH;
-    Serial.println("GPIO4 Status: ON");
-    server.send(200, "text/html", SendHTML(true, LED2status));
-}
-
-void handle_led1off()
-{
-    LED1status = LOW;
-    Serial.println("GPIO4 Status: OFF");
-    server.send(200, "text/html", SendHTML(false, LED2status));
-}
-
-void handle_led2on()
-{
-    LED2status = HIGH;
-    Serial.println("GPIO5 Status: ON");
-    server.send(200, "text/html", SendHTML(LED1status, true));
-}
-
-void handle_led2off()
-{
-    LED2status = LOW;
-    Serial.println("GPIO5 Status: OFF");
-    server.send(200, "text/html", SendHTML(LED1status, false));
-}
-
-void handle_NotFound()
-{
-    server.send(404, "text/plain", "Not found");
-}
-
-String SendHTML(uint8_t led1stat, uint8_t led2stat)
-{
-    String ptr = "<!DOCTYPE html> <html>\n";
-    ptr += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
-    ptr += "<title>LED Control</title>\n";
-    ptr += "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-    ptr += "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n";
-    ptr += ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
-    ptr += ".button-on {background-color: #3498db;}\n";
-    ptr += ".button-on:active {background-color: #2980b9;}\n";
-    ptr += ".button-off {background-color: #34495e;}\n";
-    ptr += ".button-off:active {background-color: #2c3e50;}\n";
-    ptr += "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n";
-    ptr += "</style>\n";
-    ptr += "</head>\n";
-    ptr += "<body>\n";
-    ptr += "<h1>ESP32 Web Server</h1>\n";
-    ptr += "<h3>Using Station(STA) Mode</h3>\n";
-
-    if (led1stat)
+    // Extract year
+    unsigned int year = 1970;
+    while (days >= 365)
     {
-        ptr += "<p>LED1 Status: ON</p><a class=\"button button-off\" href=\"/led1off\">OFF</a>\n";
-    }
-    else
-    {
-        ptr += "<p>LED1 Status: OFF</p><a class=\"button button-on\" href=\"/led1on\">ON</a>\n";
+        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+        {
+            if (days >= 366)
+                days -= 366;
+            else
+                break;
+        }
+        else
+        {
+            days -= 365;
+        }
+        year++;
     }
 
-    if (led2stat)
+    // Extract month and day
+    unsigned int daysPerMonth[] = {31, 28 + ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    unsigned int month = 0;
+    while (days >= daysPerMonth[month])
     {
-        ptr += "<p>LED2 Status: ON</p><a class=\"button button-off\" href=\"/led2off\">OFF</a>\n";
-    }
-    else
-    {
-        ptr += "<p>LED2 Status: OFF</p><a class=\"button button-on\" href=\"/led2on\">ON</a>\n";
+        days -= daysPerMonth[month];
+        month++;
     }
 
-    ptr += "</body>\n";
-    ptr += "</html>\n";
-    return ptr;
+    // Extract day of the month
+    unsigned int day = days + 1;
+
+    // Format date string
+    return String(day) + "/" + String(month + 1) + "/" + String(year);
+}
+
+String TimestampToTimeString(unsigned long timestamp)
+{
+    unsigned int seconds = timestamp % 60;
+    unsigned int minutes = (timestamp / 60) % 60;
+    unsigned int hours = (timestamp / 3600) % 24;
+
+    // Format time string
+    return String(hours) + ":" + String(minutes) + ":" + String(seconds);
 }

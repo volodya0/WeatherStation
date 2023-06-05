@@ -7,7 +7,7 @@ class SerialMessageTransfer
 {
 public:
     static String WrapMessage(const String &message);
-    static uint8_t GetNewMessagesCount();
+    static size_t GetNewMessagesCount();
     static bool CheckNewMessages(const String &input);
     static String GetLastMessage(bool removeFromStack = true);
     static void ClearMessages();

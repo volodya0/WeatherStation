@@ -7,14 +7,18 @@ class WeatherDataRecord
 {
 public:
     float Temperature;
+    float TemperatureDht;
     float Humidity;
     long Timestamp;
 
+    WeatherDataRecord();
     WeatherDataRecord(const String &jsonString);
-    WeatherDataRecord(float temperature, float humidity, long timestamp);
+    WeatherDataRecord(unsigned long timestamp, float temperature, float temperatureDht, float humidity);
 
     String toJSON() const;
-    void fromJSON(const String &jsonString);
+    bool fromJSON(const String &jsonString);
+    String toCompressed() const;
+    bool fromCompressed(const String &binaryString);
 };
 
 #endif // WEATHER_DATA_RECORD_H

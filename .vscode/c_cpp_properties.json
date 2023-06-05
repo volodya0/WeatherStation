@@ -235,7 +235,9 @@
                 "/Users/volodya/Library/Arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/esp-2021r2-patch5-8.4.0/xtensa-esp32-elf/include"
             ],
             "forcedInclude": [
-                "/Users/volodya/Library/Arduino15/packages/esp32/hardware/esp32/2.0.9/cores/esp32/Arduino.h"
+                "/Users/volodya/Library/Arduino15/packages/esp32/hardware/esp32/2.0.9/cores/esp32/Arduino.h",
+                "/Users/volodya/Desktop/Weather Station/src/libraries/SerialMessageTransfer/SerialMessageTransfer.h",
+                "/Users/volodya/Desktop/Weather Station/src/libraries/WeatherDataRecord/WeatherDataRecord.h"
             ],
             "cStandard": "c11",
             "cppStandard": "c++11",

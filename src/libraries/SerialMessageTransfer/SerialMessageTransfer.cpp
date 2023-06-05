@@ -14,13 +14,18 @@ String SerialMessageTransfer::WrapMessage(const String &message)
     return wrappedMessage;
 }
 
-static uint8_t SerialMessageTransfer::GetNewMessagesCount()
+size_t SerialMessageTransfer::GetNewMessagesCount()
 {
-    return currentMessageIndex + 1;
+    return currentMessageIndex;
 }
 
 bool SerialMessageTransfer::CheckNewMessages(const String &input)
 {
+    if (input.length() < 10)
+    {
+        return false;
+    }
+
     int start = input.indexOf('$(');
     bool isNewMessageAdded = false;
 
@@ -66,7 +71,7 @@ bool SerialMessageTransfer::CheckNewMessages(const String &input)
     return isNewMessageAdded;
 }
 
-String SerialMessageTransfer::GetLastMessage(bool removeFromStack = true)
+String SerialMessageTransfer::GetLastMessage(bool removeFromStack)
 {
     if (messageCount == 0)
     {

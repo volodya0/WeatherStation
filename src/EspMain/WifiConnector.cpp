@@ -2,7 +2,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include "WifiConnector.h"
-#include "config.h"
+#include "Config.h"
 
 bool WifiConnector::IsConnected()
 {
@@ -21,13 +21,13 @@ void WifiConnector::Connect()
 {
     Serial.println();
     Serial.print("[WiFi] Connecting to '");
-    Serial.print(ssid);
-    Serial.print("' with password '");
-    Serial.print(password);
+    Serial.print(WIFI_NAME);
+    Serial.print("' with WIFI_PASSWORD '");
+    Serial.print(WIFI_PASSWORD);
     Serial.print("'");
     Serial.println();
 
-    WiFi.begin(ssid, password);
+    WiFi.begin(WIFI_NAME, WIFI_PASSWORD);
 
     int tryDelay = 300;
     int numberOfTries = 30;

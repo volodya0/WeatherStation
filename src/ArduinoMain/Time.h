@@ -12,6 +12,7 @@ public:
     String GetCurrentTimeString();
     String GetCurrentDateString();
     String GetLogString();
+    unsigned long GetCurrentTimeStamp();
 
 private:
     virtuabotixRTC rtc;

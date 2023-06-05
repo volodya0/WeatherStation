@@ -3,3 +3,4 @@ config.cpp
 src/libraries/Adafruit_Unified_Sensor
 src/libraries/ArduinoRTClibrary-master
 src/libraries/DHT_sensor_library
+src/libraries/LiquidCrystal_I2C_V112
