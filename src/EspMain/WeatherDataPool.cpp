@@ -12,7 +12,7 @@ void WeatherDataPool::AddRecord(const WeatherDataRecord &record)
 
     String recordBinary = record.toCompressed();
 
-    Serial.println("WeatherDataPool::AddRecord() -> Binary: " + recordBinary);
+    // Serial.println("WeatherDataPool::AddRecord() -> Binary: " + recordBinary);
 
     recordsBinaries.push_back(recordBinary);
 }
@@ -45,12 +45,12 @@ WeatherDataRecord WeatherDataPool::GetLastRecord()
 
 std::vector<WeatherDataRecord> WeatherDataPool::GetLastRecords(size_t count)
 {
-    Serial.println("WeatherDataPool::GetLastRecords() -> count: " + String(count));
+    // Serial.println("WeatherDataPool::GetLastRecords() -> count: " + String(count));
 
     size_t c = std::min(count, recordsBinaries.size());
     std::vector<WeatherDataRecord> result{};
 
-    Serial.println("WeatherDataPool::GetLastRecords() -> c: " + String(c));
+    // Serial.println("WeatherDataPool::GetLastRecords() -> c: " + String(c));
 
     for (size_t i = 1; i <= c; i++)
     {

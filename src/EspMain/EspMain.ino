@@ -1,6 +1,8 @@
 #include "Config.h"
+#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include "WifiConnector.h"
+#include "MyServer.h"
 #include "SerialMessageTransfer.h"
 #include "WeatherDataRecord.h"
 #include "WeatherDataPool.h"
@@ -9,12 +11,18 @@
 void setup()
 {
     Serial.begin(SERIAL_COMMUNICATION_PORT);
+
+    WifiConnector::Connect();
+
+    MyServer::InitEndpoints();
 }
 
 int i = 1;
 void loop()
 {
-    Serial.println("************* Iteration " + String(i++) + "***********************");
+    Serial.println("************* Iteration " + String(i++) + " ***********************");
+
+    WifiConnector::EnsureConnection();
 
     Serial.println("RecordsCount " + String(WeatherDataPool::GetRecordsCount()));
 
@@ -22,27 +30,29 @@ void loop()
 
     if (SerialMessageTransfer::GetNewMessagesCount() > 0)
     {
-        Serial.println("MessagesCount: " + String(SerialMessageTransfer::GetNewMessagesCount()));
+        // Serial.println("MessagesCount: " + String(SerialMessageTransfer::GetNewMessagesCount()));
         SerialMessageTransfer::PrintMessagesStack();
         String lastMessage = SerialMessageTransfer::GetLastMessage(true);
-        Serial.println("Last message: " + lastMessage);
+        // Serial.println("Last message: " + lastMessage);
 
         WeatherDataRecord receivedRecord;
         if (receivedRecord.fromJSON(lastMessage))
         {
-            Serial.println("Valid record: " + receivedRecord.toJSON());
+            // Serial.println("Valid record: " + receivedRecord.toJSON());
 
             WeatherDataPool::AddRecord(receivedRecord);
-            WeatherDataPool::PrintAllRecords();
+            // WeatherDataPool::PrintAllRecords();
 
             Timestamp timestamp(receivedRecord.Timestamp);
-            Serial.println("Last record timestamp parsed: " + timestamp.getTimeString() + " " + timestamp.getDateString());
+            // Serial.println("Last record timestamp parsed: " + timestamp.getTimeString() + " " + timestamp.getDateString());
         }
         else
         {
-            Serial.println("Invalid record: " + receivedRecord.toJSON());
+            // Serial.println("Invalid record: " + receivedRecord.toJSON());
         }
     }
 
-    delay(5000);
+    MyServer::CheckAndHandleRequests();
+
+    delay(1000);
 }

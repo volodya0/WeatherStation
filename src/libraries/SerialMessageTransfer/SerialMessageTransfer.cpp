@@ -29,7 +29,7 @@ bool SerialMessageTransfer::CheckNewMessages(const String &input)
     int start = input.indexOf('$(');
     bool isNewMessageAdded = false;
 
-    Serial.println("SerialMessageTransfer::checkNewMessages -> " + input);
+    // Serial.println("SerialMessageTransfer::checkNewMessages -> " + input);
 
     while (start != -1)
     {
@@ -38,7 +38,7 @@ bool SerialMessageTransfer::CheckNewMessages(const String &input)
 
         if (end == -1 || sep == -1)
         {
-            Serial.println("Invalid message format");
+            // Serial.println("Invalid message format");
             return isNewMessageAdded;
         }
 
