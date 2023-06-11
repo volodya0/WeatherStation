@@ -2,6 +2,7 @@
 #define TEMPERATURE_H
 
 #include <Arduino.h>
+#include "WeatherDataRecord.h"
 #include "DHT.h"
 
 class Temperature
@@ -13,6 +14,7 @@ public:
     float GetDhtTempF();
     float GetHumidity();
     String GetLogString();
+    WeatherData GetData();
 
 private:
     uint8_t tmp_pin;

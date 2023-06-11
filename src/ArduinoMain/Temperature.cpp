@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "Temperature.h"
 #include "DHT.h"
+#include "WeatherDataRecord.h"
 
 #define DHTTYPE DHT11 // DHT 11
 
@@ -10,13 +11,14 @@ Temperature::Temperature(uint8_t dht_pin, uint8_t tmp_pin) : dht(DHT(dht_pin, DH
     pinMode(dht_pin, INPUT);
 
     this->tmp_pin = tmp_pin;
-    // this->dht = DHT(dht_pin, DHTTYPE, 6);
+    dht.begin();
 }
 
 float Temperature::GetTemp()
 {
-    float temp = analogRead(A0);                      // 0 - 1023
+    float temp = analogRead(tmp_pin);                 // 0 - 1023
     float result = (temp / 1023.0) * 5.0 * 1000 / 10; // Converting to celsius
+
     return result;
 }
 
@@ -42,8 +44,21 @@ float Temperature::GetHumidity()
     return result;
 }
 
+WeatherData Temperature::GetData()
+{
+    WeatherData data;
+
+    data.Temperature = GetTemp();
+    data.TemperatureDht = GetDhtTempC();
+    data.Humidity = GetHumidity();
+
+    return data;
+}
+
 String Temperature::GetLogString()
 {
-    return "Temp: " + String(this->GetTemp()) + "\tDhtTempC: " + String(this->GetDhtTempC()) +
-           "\tDhtTempF: " + String(this->GetDhtTempF()) + "\tHumidity: " + String(this->GetHumidity());
+    WeatherData data = GetData();
+
+    return "Temp: " + String(data.Temperature) + "\tDhtTempC: " + String(data.TemperatureDht) +
+           "\tHumidity: " + String(data.Humidity);
 }

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "virtuabotixRTC.h"
+#include "Timestamp.h"
 
 class Time
 {
@@ -12,7 +13,7 @@ public:
     String GetCurrentTimeString();
     String GetCurrentDateString();
     String GetLogString();
-    unsigned long GetCurrentTimeStamp();
+    Timestamp GetCurrentTimeStamp();
 
 private:
     virtuabotixRTC rtc;

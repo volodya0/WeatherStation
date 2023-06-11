@@ -2,11 +2,12 @@
 #include "WeatherDataRecord.h"
 #include "SerialMessageTransfer.h"
 #include "Temperature.h"
+#include "Timestamp.h"
 #include "Time.h"
 #include "Config.h"
 
-const uint8_t DHT11_PIN = 2;
-const uint8_t TMP_PIN = A0;
+const uint8_t DHT11_PIN = 4;
+const uint8_t TMP_PIN = A1;
 const uint8_t RTC_CLC_PIN = 6;
 const uint8_t CLC_DAT_PIN = 7;
 const uint8_t CLC_RST_PIN = 8;
@@ -17,16 +18,22 @@ Temperature temperature(DHT11_PIN, TMP_PIN);
 void setup()
 {
     Serial.begin(SERIAL_COMMUNICATION_PORT);
+    // time.SetTime(0, 27, 21, 6, 11, 5, 2023);
 }
 
 int i = 0;
 void loop()
 {
 
-    delay(5000);
+    Timestamp timestamp = time.GetCurrentTimeStamp();
 
-    WeatherDataRecord record(time.GetCurrentTimeStamp(), temperature.GetTemp(), temperature.GetDhtTempC(), temperature.GetHumidity());
+    WeatherDataRecord record(timestamp.getTimestampFromComponents(), temperature.GetData());
+
     String json = record.toJSON();
+
     String message = SerialMessageTransfer::WrapMessage(json);
+
     Serial.println(message);
+
+    delay(5000);
 }

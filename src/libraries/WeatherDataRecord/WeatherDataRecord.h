@@ -3,17 +3,22 @@
 
 #include <Arduino.h>
 
-class WeatherDataRecord
+struct WeatherData
 {
-public:
     float Temperature;
     float TemperatureDht;
     float Humidity;
-    long Timestamp;
+};
+
+class WeatherDataRecord
+{
+public:
+    WeatherData Data;
+    unsigned long Timestamp;
 
     WeatherDataRecord();
     WeatherDataRecord(const String &jsonString);
-    WeatherDataRecord(unsigned long timestamp, float temperature, float temperatureDht, float humidity);
+    WeatherDataRecord(unsigned long timestamp, WeatherData data);
 
     String toJSON() const;
     bool fromJSON(const String &jsonString);

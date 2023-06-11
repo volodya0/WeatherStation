@@ -4,6 +4,7 @@
 #include "SerialMessageTransfer.h"
 #include "WeatherDataRecord.h"
 #include "WeatherDataPool.h"
+#include "Timestamp.h"
 
 void setup()
 {
@@ -34,7 +35,8 @@ void loop()
             WeatherDataPool::AddRecord(receivedRecord);
             WeatherDataPool::PrintAllRecords();
 
-            Serial.println("Last record timestamp parsed: " + TimestampToDateString(receivedRecord.Timestamp) + " " + TimestampToTimeString(receivedRecord.Timestamp));
+            Timestamp timestamp(receivedRecord.Timestamp);
+            Serial.println("Last record timestamp parsed: " + timestamp.getTimeString() + " " + timestamp.getDateString());
         }
         else
         {
@@ -43,52 +45,4 @@ void loop()
     }
 
     delay(5000);
-}
-
-String TimestampToDateString(unsigned long timestamp)
-{
-    unsigned long days = timestamp / 86400; // 86400 seconds in a day
-
-    // Extract year
-    unsigned int year = 1970;
-    while (days >= 365)
-    {
-        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
-        {
-            if (days >= 366)
-                days -= 366;
-            else
-                break;
-        }
-        else
-        {
-            days -= 365;
-        }
-        year++;
-    }
-
-    // Extract month and day
-    unsigned int daysPerMonth[] = {31, 28 + ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    unsigned int month = 0;
-    while (days >= daysPerMonth[month])
-    {
-        days -= daysPerMonth[month];
-        month++;
-    }
-
-    // Extract day of the month
-    unsigned int day = days + 1;
-
-    // Format date string
-    return String(day) + "/" + String(month + 1) + "/" + String(year);
-}
-
-String TimestampToTimeString(unsigned long timestamp)
-{
-    unsigned int seconds = timestamp % 60;
-    unsigned int minutes = (timestamp / 60) % 60;
-    unsigned int hours = (timestamp / 3600) % 24;
-
-    // Format time string
-    return String(hours) + ":" + String(minutes) + ":" + String(seconds);
 }

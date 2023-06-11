@@ -75,13 +75,13 @@ void WeatherDataPool::PrintAllRecords()
     for (const auto &record : allRecords)
     {
         Serial.print("Timestamp: ");
-        Serial.println(record.Timestamp);
-        Serial.print("Temperature: ");
-        Serial.print(record.Temperature);
-        Serial.print("TemperatureDht: ");
-        Serial.print(record.TemperatureDht);
-        Serial.print("Humidity: ");
-        Serial.print(record.Humidity);
+        Serial.print(record.Timestamp);
+        Serial.print("\tTemperature: ");
+        Serial.print(record.Data.Temperature);
+        Serial.print("\tTemperatureDht: ");
+        Serial.print(record.Data.TemperatureDht);
+        Serial.print("\tHumidity: ");
+        Serial.println(record.Data.Humidity);
     }
     Serial.println("========================");
 }
