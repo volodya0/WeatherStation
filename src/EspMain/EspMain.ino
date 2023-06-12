@@ -20,38 +20,22 @@ void setup()
 int i = 1;
 void loop()
 {
-    Serial.println("************* Iteration " + String(i++) + " ***********************");
-
-    WifiConnector::EnsureConnection();
-
-    Serial.println("RecordsCount " + String(WeatherDataPool::GetRecordsCount()));
-
     SerialMessageTransfer::CheckNewMessages(Serial.readString());
 
     if (SerialMessageTransfer::GetNewMessagesCount() > 0)
     {
-        // Serial.println("MessagesCount: " + String(SerialMessageTransfer::GetNewMessagesCount()));
-        SerialMessageTransfer::PrintMessagesStack();
         String lastMessage = SerialMessageTransfer::GetLastMessage(true);
-        // Serial.println("Last message: " + lastMessage);
 
         WeatherDataRecord receivedRecord;
         if (receivedRecord.fromJSON(lastMessage))
         {
-            // Serial.println("Valid record: " + receivedRecord.toJSON());
-
             WeatherDataPool::AddRecord(receivedRecord);
-            // WeatherDataPool::PrintAllRecords();
-
-            Timestamp timestamp(receivedRecord.Timestamp);
-            // Serial.println("Last record timestamp parsed: " + timestamp.getTimeString() + " " + timestamp.getDateString());
-        }
-        else
-        {
-            // Serial.println("Invalid record: " + receivedRecord.toJSON());
         }
     }
 
+    delay(10);
+
+    WifiConnector::EnsureConnection();
     MyServer::CheckAndHandleRequests();
 
     delay(1000);

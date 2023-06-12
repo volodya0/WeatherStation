@@ -33,8 +33,8 @@ String WeatherDataRecord::toJSON() const
     json += "\"timestamp\":" + String(p) + ",";
     json += "\"temperature\":" + String(Data.Temperature) + ",";
     json += "\"temperatureDht\":" + String(Data.TemperatureDht) + ",";
-    json += "\"humidity\":" + String(Data.Humidity);
-    json += "\"precipitation\":" + String(Data.Precipitation);
+    json += "\"humidity\":" + String(Data.Humidity) + ",";
+    json += "\"precipitation\":" + String(Data.Precipitation) + ",";
     json += "\"brightness\":" + String(Data.Brightness);
     json += "}";
     return json;

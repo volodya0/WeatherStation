@@ -29,8 +29,17 @@ void MyServer::handleRoot()
 
 void MyServer::handleGetCurrentData()
 {
-    WeatherDataRecord lastRecord = WeatherDataPool::GetLastRecord();
-    String response = lastRecord.toJSON();
+    String response;
+
+    if (WeatherDataPool::GetRecordsCount() > 0)
+    {
+        WeatherDataRecord lastRecord = WeatherDataPool::GetLastRecord();
+        response = lastRecord.toJSON();
+    }
+    else
+    {
+        response = "Records pool is empty";
+    }
 
     server.sendHeader("Content-Type", "text/plain");
     server.send(200, "text/plain", response);
