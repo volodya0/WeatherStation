@@ -5,12 +5,17 @@
 
 #define DHTTYPE DHT11 // DHT 11
 
-Temperature::Temperature(uint8_t dht_pin, uint8_t tmp_pin) : dht(DHT(dht_pin, DHTTYPE))
+Temperature::Temperature(uint8_t dht_pin, uint8_t tmp_pin, uint8_t hw_pin, uint8_t ptr_pin) : dht(DHT(dht_pin, DHTTYPE))
 {
-    pinMode(tmp_pin, INPUT);
     pinMode(dht_pin, INPUT);
+    pinMode(tmp_pin, INPUT);
+    pinMode(hw_pin, INPUT);
+    pinMode(ptr_pin, INPUT);
 
     this->tmp_pin = tmp_pin;
+    this->hw_pin = hw_pin;
+    this->ptr_pin = ptr_pin;
+
     dht.begin();
 }
 
@@ -44,6 +49,18 @@ float Temperature::GetHumidity()
     return result;
 }
 
+int Temperature::GetPrecipitation()
+{
+    int value = analogRead(hw_pin);
+    return 1024 - value;
+}
+
+int Temperature::GetBrightness()
+{
+    int value = analogRead(ptr_pin);
+    return value;
+}
+
 WeatherData Temperature::GetData()
 {
     WeatherData data;
@@ -51,6 +68,8 @@ WeatherData Temperature::GetData()
     data.Temperature = GetTemp();
     data.TemperatureDht = GetDhtTempC();
     data.Humidity = GetHumidity();
+    data.Precipitation = GetPrecipitation();
+    data.Brightness = GetBrightness();
 
     return data;
 }

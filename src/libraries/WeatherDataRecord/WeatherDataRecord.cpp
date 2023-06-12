@@ -34,6 +34,8 @@ String WeatherDataRecord::toJSON() const
     json += "\"temperature\":" + String(Data.Temperature) + ",";
     json += "\"temperatureDht\":" + String(Data.TemperatureDht) + ",";
     json += "\"humidity\":" + String(Data.Humidity);
+    json += "\"precipitation\":" + String(Data.Precipitation);
+    json += "\"brightness\":" + String(Data.Brightness);
     json += "}";
     return json;
 }
@@ -99,6 +101,14 @@ bool WeatherDataRecord::fromJSON(const String &jsonString)
         else if (key == "\"humidity\"")
         {
             Data.Humidity = value.toFloat();
+        }
+        else if (key == "\"precipitation\"")
+        {
+            Data.Precipitation = value.toInt();
+        }
+        else if (key == "\"brightness\"")
+        {
+            Data.Brightness = value.toInt();
         }
     }
 

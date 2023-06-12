@@ -8,6 +8,8 @@ struct WeatherData
     float Temperature;
     float TemperatureDht;
     float Humidity;
+    int Precipitation;
+    int Brightness;
 };
 
 class WeatherDataRecord
