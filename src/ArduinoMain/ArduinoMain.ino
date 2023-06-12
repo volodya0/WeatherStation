@@ -1,10 +1,10 @@
 #include <Arduino.h>
-#include "WeatherDataRecord.h"
-#include "SerialMessageTransfer.h"
-#include "Temperature.h"
-#include "Timestamp.h"
-#include "Time.h"
 #include "Config.h"
+#include "SerialMessageTransfer.h"
+#include "WeatherSensorsReader.h"
+#include "RtcReader.h"
+#include "WeatherDataRecord.h"
+#include "Timestamp.h"
 
 const uint8_t HW_PIN = A0;
 const uint8_t TMP_PIN = A1;
@@ -15,27 +15,27 @@ const uint8_t RTC_CLC_PIN = 6;
 const uint8_t CLC_DAT_PIN = 7;
 const uint8_t CLC_RST_PIN = 8;
 
-Time time(RTC_CLC_PIN, CLC_DAT_PIN, CLC_RST_PIN);
-Temperature temperature(DHT11_PIN, TMP_PIN, HW_PIN, PTR_PIN);
+RtcReader rtcReader(RTC_CLC_PIN, CLC_DAT_PIN, CLC_RST_PIN);
+WeatherSensorsReader weatherSensorsReader(DHT11_PIN, TMP_PIN, HW_PIN, PTR_PIN);
 
 void setup()
 {
     Serial.begin(SERIAL_COMMUNICATION_PORT);
-    // time.SetTime(0, 27, 21, 6, 11, 5, 2023);
+    // rtcReader.SetTime(0, 45, 12, 0, 12, 6, 2023);
 }
 
-int i = 0;
+long delayMs = 20 * 1000;
 void loop()
 {
-    Timestamp timestamp = time.GetCurrentTimeStamp();
+    Timestamp timestamp = rtcReader.GetCurrentTimeStamp();
+    WeatherData weatherData = weatherSensorsReader.ReadWholeData();
 
-    WeatherDataRecord record(timestamp.getTimestampFromComponents(), temperature.GetData());
+    WeatherDataRecord record(timestamp.getTimestampFromComponents(), weatherData);
 
     String json = record.toJSON();
-
     String message = SerialMessageTransfer::WrapMessage(json);
 
     Serial.println(message);
 
-    delay(5000);
+    delay(delayMs);
 }
